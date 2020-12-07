@@ -1,5 +1,12 @@
 # Changelog
 
+
+## [0.4.0-SNAPSHOT] - 2020-??-??
+
+### Added
+- Initial support for Thermoregulation (WHO=4)
+
+
 ## [0.3.4] - 2021-01-07
 
 ### Fixed
