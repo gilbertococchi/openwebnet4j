@@ -1,6 +1,31 @@
 # Changelog
 
+<<<<<<< HEAD
 ## [0.4.0-SNAPSHOT] - 2020-??-??
+=======
+
+## [0.4.0-SNAPSHOT] - 2020-??-??
+
+### Added
+- Initial support for Thermoregulation (WHO=4)
+
+
+## [0.3.4] - 2021-01-07
+
+### Fixed
+- [zigbee] Disconnect serial port if USB dongle returns NACK during connection (fixes #7)
+- [zigbee] Fixed (again) fixInvertedUpDownBug() not converting commands
+- removed warn logs when reconnecting command connection
+
+### Changed
+- renamed dimmer levels in Lighting WHAT enum
+
+
+## [0.3.3] - 2021-01-02
+
+### Fixed
+- [zigbee] Fixed fixInvertedUpDownBug() not converting commands
+>>>>>>> upstream/0.4-thermo-new
 
 ### Added
 - Initial support for Thermoregulation (WHO=4)
@@ -39,7 +64,7 @@
 - Detection of green switch (WHAT 34/39). Limit dimmers detection to WHAT=2-10 values.
 
 ### Fixed
-- Add support for OPEN password nonce with less than 8 digits [Fixes #1]
+- Add support for OPEN password nonce with less than 8 digits (fixes #1)
 - Added check to verify gw is still reachable after MON rcv timetout expires before closing MON connection
 
 

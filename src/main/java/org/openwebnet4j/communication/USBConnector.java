@@ -159,11 +159,13 @@ public class USBConnector extends OpenConnector implements SerialPortEventListen
             // send requestKeepConnect to see if USB stick is ready to receive commands
             GatewayMgmt frame = GatewayMgmt.requestKeepConnect();
             cmdChannel.sendFrame(GatewayMgmt.requestKeepConnect().getFrameValue());
+
             hsLogger.info("(HS) USB HS==>>>> {}", frame.getFrameValue());
             Thread.sleep(50); // we must wait few ms for the answer to be ready
             String resp = cmdChannel.readFrames();
             hsLogger.info("(HS) USB <<<<==HS {}", resp);
             if (!OpenMessage.FRAME_ACK.equals(resp)) {
+                disconnectSerialPort();
                 throw new OWNException("Could not communicate with a Zigbee USB Gateway on serial port: " + portN
                         + ". Serial returned: " + resp);
             }
@@ -174,8 +176,10 @@ public class USBConnector extends OpenConnector implements SerialPortEventListen
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (IOException e) {
+            disconnectSerialPort();
             throw new OWNException("Failed to communicate with Zigbee USB Gateway on serial port: " + portN, e);
         } catch (TooManyListenersException e) {
+            disconnectSerialPort();
             throw new OWNException("Failed to communicate with Zigbee USB Gateway on serial port: " + portN, e);
         }
     }
@@ -276,7 +280,7 @@ public class USBConnector extends OpenConnector implements SerialPortEventListen
         OpenMessage fixedMsg = fixInvertedUpDownBug(msg);
         synchronized (cmdSentSynchObj) {
             currentResponse = new Response(fixedMsg); // FIXME check if we have to store original or modified message
-            String frameSend = msg.getFrameValue();
+            String frameSend = fixedMsg.getFrameValue();
             cmdChannel.sendFrame(frameSend);
             lastCmdFrameSentTs = System.currentTimeMillis();
             msgLogger.info("USB-CMD ====>>>> {}", frameSend);
@@ -354,12 +358,14 @@ public class USBConnector extends OpenConnector implements SerialPortEventListen
     private OpenMessage fixInvertedUpDownBug(OpenMessage msg) {
         if (hasAutomationBug && msg instanceof Automation) {
             try {
-                logger.debug("##USB-conn## older firmware: converting Automation UP / DOWN on message: {}", msg);
-                return Automation.convertUpDown((Automation) msg);
+                Automation msgConverted = Automation.convertUpDown((Automation) msg);
+                logger.debug("##USB-conn## older firmware: converting Automation UP / DOWN on message {} --> {}", msg,
+                        msgConverted);
+                return msgConverted;
             } catch (FrameException fe) {
                 logger.warn(
-                        "##USB-conn## older firmware: FrameException while converting Automation UP/DOWN message: {}.",
-                        msg);
+                        "##USB-conn## older firmware: FrameException while converting Automation UP/DOWN on message {}: {}",
+                        msg, fe.getMessage());
             }
         }
         return msg;
