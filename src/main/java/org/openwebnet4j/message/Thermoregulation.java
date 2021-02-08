@@ -140,8 +140,33 @@ public class Thermoregulation extends BaseOpenMessage {
         }
     }
 
+    public enum FAN_COIL_SPEED {
+        AUTO(0),
+        VEL1(1),
+        VEL2(2),
+        VEL3(3),
+        OFF(15);
+
+        private final Integer value;
+
+        private FAN_COIL_SPEED(Integer value) {
+            this.value = value;
+        }
+
+        public static FAN_COIL_SPEED fromValue(Integer i) {
+            Optional<FAN_COIL_SPEED> fcs = Arrays.stream(values()).filter(val -> i.intValue() == val.value.intValue())
+                    .findFirst();
+            return fcs.orElse(null);
+        }
+
+        public Integer value() {
+            return value;
+        }
+    }
+
     public enum DIM implements Dim {
         TEMPERATURE(0),
+        FAN_COIL_SPEED(11),
         TEMP_TARGET(12),
         OFFSET(13),
         TEMP_SETPOINT(14),
@@ -248,6 +273,18 @@ public class Thermoregulation extends BaseOpenMessage {
     }
 
     /**
+     * OpenWebNet to set the Fan Coil Speed<b>*#4*where*11*speed##</b>.
+     *
+     * @param where WHERE string
+     * @return message
+     */
+    public static Thermoregulation requestWriteFanCoilSpeed(String where,
+            Thermoregulation.FAN_COIL_SPEED newFanCoilSpeed) {
+        return new Thermoregulation(
+                format(FORMAT_DIMENSION_WRITING_1V, WHO, where, DIM.FAN_COIL_SPEED.value(), newFanCoilSpeed.value()));
+    }
+
+    /**
      * OpenWebNet message request to turn off the thermostat <i>OFF</i> <b>*4*303*where##</b>.
      *
      * @param where WHERE string
@@ -275,6 +312,16 @@ public class Thermoregulation extends BaseOpenMessage {
      */
     public static Thermoregulation requestSetPointTemperature(String w) {
         return new Thermoregulation(format(FORMAT_DIMENSION, WHO, w, DIM.TEMP_SETPOINT.value()));
+    }
+
+    /**
+     * OpenWebNet message request the Fan Coil Speed<b>*#4*where*11##</b>.
+     *
+     * @param where WHERE string
+     * @return message
+     */
+    public static Thermoregulation requestFanCoilSpeed(String w) {
+        return new Thermoregulation(format(FORMAT_DIMENSION, WHO, w, DIM.FAN_COIL_SPEED.value()));
     }
 
     /**
